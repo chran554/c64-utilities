@@ -1,7 +1,23 @@
 #!/bin/bash
 
+tools_path="/Users/christian/projects/code/c64/tools"
+exomizer_exec="${tools_path}/exomizer/exomizer-3.1.1/exomizer"
+kickass_jar="${tools_path}/kickassembler/kickassembler_5.24/KickAss.jar"
+vice_exec="x64sc"
+#debug_exec="${tools_path}/C64\ 65XE\ NES\ Debugger/C64\ 65XE\ NES\ Debugger\ v0.64.58.6/C64\ Debugger.app/Contents/MacOS/C64\ Debugger"
+debug_exec="${tools_path}/C64 65XE NES Debugger/C64 65XE NES Debugger v0.64.58.6/C64 Debugger.app/Contents/MacOS/C64 Debugger"
+cc1541_exec="${tools_path}/cc1541/cc1541_bin-4.0/cc1541_mac"
+
 assemblerFile=$1
+
 projectFileDir=$2
+projectFileDir="${projectFileDir:-.}"
+
+runMode=$3
+runMode="${runMode:-run}"
+
+echo "Project file dir: $projectFileDir"
+echo "Run mode: $runMode"
 
 # Get absolute path for supplied project path (no relative path)
 cd $projectFileDir
@@ -11,13 +27,6 @@ cd -
 assemblerFileWithExtension=$(basename -- "$assemblerFile")
 extension="${assemblerFileWithExtension##*.}"
 filename="${assemblerFileWithExtension%.*}"
-
-tools_path="/Users/christian/Projects/c64/tools"
-exomizer_exec="${tools_path}/Exomizer/Exomizer_3.02/exomizer"
-kickass_jar="${tools_path}/KickAssembler/KickAssembler_v5.16/KickAss.jar"
-vice_exec="${tools_path}/vice/vice-sdl2-3.4-r37694/x64sc.app/Contents/MacOS/x64sc"
-debug_exec="${tools_path}/c64_debugger/C64_65XE_Debugger_v0.64.58/C64_Debugger.app/Contents/MacOS/C64Debugger"
-cc1541_exec="${tools_path}/cc1541/cc1541_v3.2/cc1541"
 
 target_path="${projectFileDir}/target"
 assemblerAbsoluteFile="${projectFileDir}/${assemblerFile}"
@@ -65,5 +74,10 @@ echo "Final program file:   ${finalProgramFile}"
 echo "C64 disc file:        ${c64_disc_file}"
 echo "--------------------------------------------------"
 
-"${debug_exec}" -prg "${finalProgramFile}" -wait 2000 -autojmp
-#$vice_exec -moncommands $viceMonitorCommandsFile -autostartprgmode 1 $finalProgramFile
+if [[ $runMode == "run" ]]
+then
+  $vice_exec -moncommands "$viceMonitorCommandsFile" -autostartprgmode 1 "$finalProgramFile"
+else
+  #"${debug_exec}" -prg "${finalProgramFile}" -wait 9000 -autojmp
+  "${debug_exec}" -prg "${finalProgramFile}" -wait 5000 -autojmp
+fi
